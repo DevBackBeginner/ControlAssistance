@@ -1,6 +1,7 @@
 <?php
     // Asegúrate de tener cargado el autoload de Composer
     require_once __DIR__ . '/../../vendor/autoload.php';
+    
     use Dompdf\Dompdf;
 
     require_once __DIR__ . '/../models/AprendizModelo.php';
@@ -19,7 +20,7 @@
             // Se utiliza output buffering para capturar el HTML.
             ob_start();
 
-            include_once __DIR__ . '/../../public/views/reporte_aprendices_pdf.php';
+            include_once __DIR__ . '/../../public/views/reports/reporte_aprendices_pdf.php';
 
             $html = ob_get_clean();
 

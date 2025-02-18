@@ -24,7 +24,7 @@
             }
 
             // Si los datos fueron encontrados, se carga la vista 'vista_aprendices.php' para mostrar los aprendices
-            include_once __DIR__ . '/../../public/views/Students_view.php'; // Cargar la vista
+            include_once __DIR__ . '/../../public/views/dashboard/main.php'; // Cargar la vista
         }
     }
 ?>

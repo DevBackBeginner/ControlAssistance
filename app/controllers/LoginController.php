@@ -1,6 +1,6 @@
 <?php
-    // Incluir el modelo de login para manejar la autenticación de usuarios
-    require_once __DIR__ . '/../models/LoginModel.php';
+    // Incluir el modelo de login para manejar la autenticación de emails
+    require_once __DIR__ . '/../models/LoginModelo.php';
     
     // Iniciar la sesión para manejar autenticación y mensajes de error/éxito
     session_start();
@@ -18,60 +18,48 @@
          * Método para mostrar la vista de login
          */
         public function mostrarLogin() {
-            include_once __DIR__ . '/../../public/views/Students_view.php';
+            include_once __DIR__ . '/../../public/views/auth/login.php';
         }
 
         /**
          * Método para procesar el formulario de login
          */
         public function procesarLogin() {
-            // Verificar si los campos usuario y contraseña han sido enviados
-            if (!isset($_POST['usuario']) || !isset($_POST['contrasena'])) {
-                $_SESSION['error'] = "Credenciales incorrectas.";
-                header("Location: login");
-                exit;
-            }
+            // Verificar que se haya enviado el formulario mediante POST
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                // Capturar y sanitizar los datos ingresados
+                $correo = filter_var(trim($_POST['correo']), FILTER_SANITIZE_EMAIL);
+                $contrasena = trim($_POST['password']);
 
-            // Inicializar la variable de intentos fallidos si no existe
-            if (!isset($_SESSION['intentos'])) {
-                $_SESSION['intentos'] = 0;
-            }
+                // Obtener el portero de la base de datos según el correo
+                $portero = $this->loginModel->obtenerPorCorreo($correo);
 
-            // Bloquear acceso si hay demasiados intentos fallidos
-            if ($_SESSION['intentos'] >= 5) {
-                $_SESSION['error'] = "Demasiados intentos fallidos. Intente más tarde.";
-                header("Location: login");
-                exit;
-            }
+                if ($portero && password_verify($contrasena, $portero['contrasena'])) {
+                    // La contraseña es correcta, iniciar sesión
+                    $_SESSION['usuario'] = $portero['nombre'];
 
-            // Sanitizar los datos ingresados por el usuario
-            $usuario = htmlspecialchars(trim($_POST['usuario']), ENT_QUOTES, 'UTF-8');
-            $contrasena = $_POST['contrasena'];
-
-            // Consultar la base de datos para obtener la información del usuario
-            $datosUsuario = $this->loginModel->obtenerUsuario($usuario);
-
-            // Verificar si el usuario existe y la contraseña es correcta
-            if ($datosUsuario && password_verify($contrasena, $datosUsuario['contrasena'])) {
-                session_regenerate_id(true); // Previene ataques de session fixation
-
-                // Guardar datos del usuario en la sesión
-                $_SESSION['id'] = $datosUsuario['id'];
-                $_SESSION['usuario'] = $usuario;
-
-                // Restablecer el contador de intentos fallidos
-                unset($_SESSION['intentos']); 
-                
-                // Redirigir al usuario al dashboard
-                header("Location: dashboard.php");
-                exit;
+                    // Redirigir al panel principal
+                    header("Location: panel");
+                    exit;
+                } else {
+                    // Credenciales incorrectas
+                    $_SESSION['error'] = "Correo o contraseña incorrectos.";
+                    header("Location: login");
+                    exit;
+                }
             } else {
-                // Incrementar el contador de intentos fallidos en caso de error
-                $_SESSION['intentos']++;
-                $_SESSION['error'] = "Credenciales incorrectas.";
+                // Si no es una solicitud POST, redirigir al formulario de inicio de sesión
                 header("Location: login");
                 exit;
             }
+        }
+
+        public function Logout(){
+            session_start();
+            session_unset(); // Elimina todas las variables de sesión
+            session_destroy(); // Destruye la sesión
+            header("Location: login"); // Redirige al usuario a la página de inicio de sesión
+            exit();
         }
     }
 ?>
