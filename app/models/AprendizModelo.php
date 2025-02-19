@@ -27,42 +27,82 @@ class AprendizModelo {
      * @return array Arreglo asociativo donde cada clave es el código de la ficha y su valor es un arreglo de estudiantes asociados.
      */
     public function obtenerTodosPorFicha() {
-        // Definir la consulta SQL con varios JOIN para relacionar las tablas de estudiantes, fichas, asistencias y computadores
+        // Definir la consulta SQL con JOIN para relacionar las tablas aprendices, fichas, asistencias y computadores
         $sql = "SELECT 
-                    e.id, 
-                    e.numero_identidad, 
-                    e.nombre, 
-                    f.codigo AS ficha, 
-                    f.turno, 
-                    a.fecha, 
-                    a.hora_entrada, 
-                    a.hora_salida, 
-                    c.nombre AS computador, 
-                    c.codigo AS codigo_computador
-                FROM estudiantes e
-                INNER JOIN estudiante_ficha ef ON e.id = ef.estudiante_id
-                INNER JOIN fichas f ON ef.ficha_id = f.id
-                LEFT JOIN asistencias a ON a.estudiante_id = e.id
-                LEFT JOIN computadores c ON a.computador_id = c.id
-                ORDER BY f.codigo";
-
-        // Ejecutar la consulta en la base de datos utilizando PDO
+            a.id, 
+            a.numero_identidad, 
+            a.nombre, 
+            f.codigo AS ficha, 
+            f.turno, 
+            asi.fecha, 
+            asi.hora_entrada, 
+            asi.hora_salida, 
+            c.nombre AS computador, 
+            c.codigo AS codigo_computador
+        FROM aprendices a
+        INNER JOIN fichas f ON a.ficha_id = f.id
+        LEFT JOIN asistencias asi ON asi.aprendiz_id = a.id
+        LEFT JOIN computadores c ON asi.computador_id = c.id
+        ORDER BY f.codigo";
+    
         $stmt = $this->db->prepare($sql);
         $stmt->execute(); // Ejecutar la consulta
-
+    
         // Obtener los resultados como un arreglo asociativo
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Inicializar un arreglo para almacenar los estudiantes agrupados por ficha
+    
+        // Inicializar un arreglo para almacenar los aprendices agrupados por ficha
         $studentsByFicha = [];
+    
         // Recorrer cada fila del resultado
         foreach ($result as $student) {
-            // Agrupar los estudiantes usando el código de ficha como clave
+            // Agrupar los aprendices usando el código de ficha como clave
             $studentsByFicha[$student['ficha']][] = $student;
         }
-
+        
         // Retornar el arreglo de estudiantes agrupados por ficha
         return $studentsByFicha;
     }
+    
+
+    public function obtenerAprendicesFiltrados($ficha, $documento) {
+        // Consulta con INNER JOIN para unir aprendices y fichas
+        $sql = "SELECT a.*, f.codigo AS ficha, f.turno 
+                FROM aprendices a
+                INNER JOIN fichas f ON a.ficha_id = f.id
+                WHERE 1=1";  // Condición base para agregar filtros dinámicamente
+        $params = [];
+    
+        // Validar y agregar condición para el código de ficha
+        if (!empty($ficha)) {
+            $sql .= " AND f.codigo LIKE ?";  // Filtro de coincidencia parcial
+            $params[] = "%$ficha%";  // Parámetro seguro
+        }
+    
+        // Validar y agregar condición para el número de identidad
+        if (!empty($documento)) {
+            $sql .= " AND a.numero_identidad LIKE ?";  // Filtro de coincidencia parcial
+            $params[] = "%$documento%";  // Parámetro seguro
+        }
+    
+        // Preparar y ejecutar la consulta con PDO para evitar inyecciones SQL
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);  // Ejecutar con los parámetros proporcionados
+    
+        // Obtener los resultados
+        $aprendices = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+        // Agrupar aprendices por ficha
+        $aprendicesPorFicha = [];
+        foreach ($aprendices as $aprendiz) {
+            $aprendicesPorFicha[$aprendiz['ficha']][] = $aprendiz;
+        }
+    
+        // Retornar los aprendices agrupados por ficha
+        return $aprendicesPorFicha;
+    }
+    
+    
+    
 }
 ?>
