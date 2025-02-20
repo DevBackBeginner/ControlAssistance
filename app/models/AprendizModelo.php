@@ -34,10 +34,11 @@ class AprendizModelo {
             a.nombre, 
             f.codigo AS ficha, 
             f.turno, 
-            asi.fecha, 
             asi.hora_entrada, 
             asi.hora_salida, 
-            c.nombre AS computador, 
+            asi.entrada_computador,
+            asi.salida_computador,
+            c.marca AS computador, 
             c.codigo AS codigo_computador
         FROM aprendices a
         INNER JOIN fichas f ON a.ficha_id = f.id

@@ -23,21 +23,26 @@
                 die("Error: No se encontraron datos.");
             }
 
-            // Si los datos fueron encontrados, se carga la vista 'vista_aprendices.php' para mostrar los aprendices
+            // Si los datos fueron encontrados, se carga la vista 'panel.php' para mostrar los aprendices
             include_once __DIR__ . '/../../public/views/attendance/panel.php'; // Cargar la vista
         }
 
         public function filtrarAprendices() {
+            // Obtener el valor del filtro 'ficha' de la solicitud POST, si no existe, se asigna una cadena vacía
             $ficha = $_POST['ficha'] ?? '';
+            
+            // Obtener el valor del filtro 'documento' de la solicitud POST, si no existe, se asigna una cadena vacía
             $documento = $_POST['documento'] ?? '';
         
-            // Obtener los resultados filtrados de la base de datos
+            // Obtener los resultados de aprendices filtrados de la base de datos usando el modelo
             $aprendicesPorFicha = $this->aprendizModelo->obtenerAprendicesFiltrados($ficha, $documento);
         
-            // Renderizar solo la tabla de resultados
-            include_once __DIR__ . '/../../public/views/partials/tabla_aprendices.php';
-
+            // Incluir la vista que renderiza la tabla con los resultados de los aprendices filtrados
+            include_once __DIR__ . '/../../public/views/attendance/tabla_aprendices.php';
         }
+
+        
+        
     }
 ?>
 

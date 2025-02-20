@@ -11,31 +11,33 @@
                             <th class="p-4 border">Turno</th>
                             <th class="p-4 border">Hora de Entrada</th>
                             <th class="p-4 border">Hora de Salida</th>
-                            <th class="p-4 border">Computador</th>
-                            <th class="p-4 border">Código Computador</th>
-                            <th class="p-4 border">Acciones</th> <!-- Nueva columna para el botón -->
+                            <th class="p-4 border">Entrada Computador</th>
+                            <th class="p-4 border">Salida Computador</th>
+                            <th class="p-4 border">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($aprendices as $aprendiz): ?>
+                        <?php foreach ($aprendices as $index => $aprendiz): 
+                            $aprendizId = !empty($aprendiz['id']) ? $aprendiz['id'] : $index;
+                        ?>
                             <tr class="border-b border-gray-200 hover:bg-gray-100 text-center transition-all">
                                 <td class="p-4 border"><?= htmlspecialchars($aprendiz['nombre']) ?></td>
                                 <td class="p-4 border"><?= htmlspecialchars($aprendiz['numero_identidad']) ?></td>
                                 <td class="p-4 border"><?= htmlspecialchars($aprendiz['turno']) ?></td>
                                 <td class="p-4 border"><?= htmlspecialchars($aprendiz['hora_entrada'] ?? 'Sin registro') ?></td>
                                 <td class="p-4 border"><?= htmlspecialchars($aprendiz['hora_salida'] ?? 'Sin registro') ?></td>
-                                <td class="p-4 border"><?= htmlspecialchars($aprendiz['computador'] ?? 'Sin registro') ?></td>
-                                <td class="p-4 border"><?= htmlspecialchars($aprendiz['codigo_computador'] ?? 'Sin registro') ?></td>
+                                <td class="p-4 border"><?= htmlspecialchars($aprendiz['entrada_computador'] ?? 'No') ?></td>
+                                <td class="p-4 border"><?= htmlspecialchars($aprendiz['salida_computador'] ?? 'No') ?></td>
                                 <td class="p-4 border">
-                                    <!-- Formulario del botón de registrar -->
-                                    <form action="registrar_aprendiz" method="POST">
-                                        <input type="hidden" name="documento" value="<?= htmlspecialchars($aprendiz['numero_identidad']) ?>">
-                                        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition-all">
-                                            Registrar
-                                        </button>
-                                    </form>
+                                    <button type="button" 
+                                        onclick="abrirModal('modal-<?= $aprendizId ?>')"
+                                        class="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition-all">
+                                        Registrar Asistencia
+                                    </button>
                                 </td>
                             </tr>
+                            <!-- Modal para este aprendiz -->
+                            <?php include "modal_registro.php" ?> 
                         <?php endforeach; ?>
                     </tbody>
                 </table>
