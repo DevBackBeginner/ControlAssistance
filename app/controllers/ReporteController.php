@@ -20,7 +20,7 @@
             // Se utiliza output buffering para capturar el HTML.
             ob_start();
 
-            include_once __DIR__ . '/../../public/views/reports/reporte_aprendices_pdf.php';
+            include_once __DIR__ . '/../views/reports/reporte_aprendices_pdf.php';
 
             $html = ob_get_clean();
 

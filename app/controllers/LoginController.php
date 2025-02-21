@@ -15,13 +15,6 @@
         }
 
         /**
-         * Método para mostrar la vista de login
-         */
-        public function mostrarLogin() {
-            include_once __DIR__ . '/../../public/views/auth/login.php';
-        }
-
-        /**
          * Método para procesar el formulario de login
          */
         public function procesarLogin() {

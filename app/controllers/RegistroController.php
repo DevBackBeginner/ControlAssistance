@@ -20,13 +20,14 @@ class RegistroController {
     public function registrarEntrada() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $aprendizId = $_POST['aprendiz_id'] ?? null;
-
+    
             if ($aprendizId) {
                 try {
-                    $resultado = $this->registroModelo->registrarEntrada($aprendizId);
-                    
-                    // Responder con JSON
-                    if ($resultado) {
+                    // Primero, registrar la entrada
+                    $resultadoEntrada = $this->registroModelo->registroEntrada($aprendizId);
+    
+                    // Responder con JSON para continuar con la pregunta del computador
+                    if ($resultadoEntrada) {
                         echo json_encode(['success' => true, 'message' => 'Entrada registrada correctamente.']);
                     } else {
                         echo json_encode(['success' => false, 'message' => 'Error al registrar la entrada.']);
@@ -39,6 +40,7 @@ class RegistroController {
             }
         }
     }
+    
 
     // Método para manejar el registro de salida de asistencia
     public function registrarSalida() {
@@ -64,35 +66,30 @@ class RegistroController {
         }
     }
 
-    // Método para obtener computadores asociados a un aprendiz
-    public function obtenerComputadoresPorDocumento($documento) {
-        try {
-            return $this->registroModelo->obtenerComputadoresPorDocumento($documento);
-        } catch (Exception $e) {
-            $_SESSION['mensaje_error'] = "Error al obtener computadores: " . $e->getMessage();
-            return [];
-        }
-    }
-
     // Método para registrar un computador
     public function registrarComputador() {
-        try {
-            // Obtener datos del formulario POST
-            $marca = $_POST['marca'] ?? '';
-            $codigo = $_POST['codigo'] ?? '';
-
-            // Llamar al modelo para registrar el computador
-            $this->registroModelo->registrarComputador($marca, $codigo);
-
-            // Mensaje de éxito
-            $_SESSION['mensaje_exito'] = "Computador registrado correctamente.";
-        } catch (Exception $e) {
-            // Manejar errores y mostrar mensajes al usuario
-            $_SESSION['mensaje_error'] = "Error al registrar computador: " . $e->getMessage();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $aprendizId = $_POST['aprendiz_id'] ?? null;
+            $marcaComputador = $_POST['marca_computador'] ?? null;
+            $codigoComputador = $_POST['codigo_computador'] ?? null;
+    
+            if ($aprendizId && $marcaComputador && $codigoComputador) {
+                try {
+                    $resultado = $this->registroModelo->registrarComputador($aprendizId, $marcaComputador, $codigoComputador);
+    
+                    if ($resultado) {
+                        echo json_encode(['success' => true, 'message' => 'Computador registrado correctamente.']);
+                    } else {
+                        echo json_encode(['success' => false, 'message' => 'Error al registrar el computador.']);
+                    }
+                } catch (Exception $e) {
+                    echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage()]);
+                }
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Datos incompletos.']);
+            }
         }
-
-        // Redirigir a la página de inicio o a la vista adecuada
-        header("Location: panel");
-        exit();
     }
+    
+    
 }

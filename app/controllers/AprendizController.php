@@ -24,7 +24,17 @@
             }
 
             // Si los datos fueron encontrados, se carga la vista 'panel.php' para mostrar los aprendices
-            include_once __DIR__ . '/../../public/views/attendance/panel.php'; // Cargar la vista
+            include_once __DIR__ . '/../views/learners/panel.php'; // Cargar la vista
+        }
+
+        // Método para obtener computadores asociados a un aprendiz
+        public function obtenerComputadoresDocumento($documento) {
+            try {
+                return $this->aprendizModelo->obtenerComputadoresPorDocumento($documento);
+            } catch (Exception $e) {
+                $_SESSION['mensaje_error'] = "Error al obtener computadores: " . $e->getMessage();
+                return [];
+            }
         }
 
         public function filtrarAprendices() {
@@ -38,10 +48,20 @@
             $aprendicesPorFicha = $this->aprendizModelo->obtenerAprendicesFiltrados($ficha, $documento);
         
             // Incluir la vista que renderiza la tabla con los resultados de los aprendices filtrados
-            include_once __DIR__ . '/../../public/views/attendance/tabla_aprendices.php';
+            include_once __DIR__ . '/../views/learners/tabla_aprendices.php'; // Cargar la vista
         }
 
-        
+        // Manejar la solicitud para obtener el contenido del modal
+        public function obtenerContenidoModal($aprendizId) {
+            // Obtener la información del aprendiz
+            $aprendiz = $this->aprendizModelo->obtenerAprendizPorId($aprendizId);
+
+            // Verificar si el aprendiz tiene un computador asignado
+            // $computador = $this->aprendizModelo->obtenerComputadorPorAprendizId($aprendizId);
+
+            // Incluir la vista del modal y pasar los datos necesarios
+            include 'vistas/modalContenido.php';
+        }
         
     }
 ?>
